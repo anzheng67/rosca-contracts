@@ -48,25 +48,24 @@ contract ROSCA {
   event LogEmergencyWithdrawalPerformed(uint256 fundsDispersed);
 
   // ROSCA parameters
-  uint16 internal roundPeriodInDays;
+  uint16 public roundPeriodInDays;
   uint16 internal serviceFeeInThousandths;
-  uint16 internal currentRound;  // set to 0 when ROSCA is created, becomes 1 when ROSCA starts
+  uint16 public currentRound;  // set to 0 when ROSCA is created, becomes 1 when ROSCA starts
   address internal foreperson;
-  uint128 internal contributionSize;
-  uint256 internal startTime;
+  uint128 public contributionSize;
+  uint256 public startTime;
 
   // ROSCA state
-  bool internal endOfROSCA = false;
+  bool public endOfROSCA = false;
   bool internal forepersonSurplusCollected = false;
   uint256 internal totalDiscounts; // a discount is the difference between a winning bid and the pot value
   uint256 internal totalFees = 0;
 
   // Round state
-  uint256 internal lowestBid;
-  address internal winnerAddress;
-
-  mapping(address => User) internal members;
-  address[] internal membersAddresses;    // for  iterating through members' addresses
+  uint256 public lowestBid;
+  address public winnerAddress;
+  mapping(address => User) public members;
+  address[] public membersAddresses;    // for  iterating through members' addresses
 
   // Other state
   // An escape hatch is used in case a major vulnerability is discovered in the contract code.
@@ -155,6 +154,12 @@ contract ROSCA {
   }
 
   function addMember(address newMember) internal {
+    if (members[newMember].alive) throw;
+    members[newMember] = User({paid: false , credit: 0, alive: true});
+    membersAddresses.push(newMember);
+  }
+
+  function addMemberExt(address newMember) external {
     if (members[newMember].alive) throw;
     members[newMember] = User({paid: false , credit: 0, alive: true});
     membersAddresses.push(newMember);
